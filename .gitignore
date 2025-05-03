@@ -1,0 +1,18 @@
+# API keys / Environment variables
+.env
+secret_keys.py
+
+# Logs
+*.log
+
+# Python cache
+venv/
+__pycache__/
+*.pyc
+
+# VS Code config
+.vscode/
+
+# OS trash
+.DS_Store
+Thumbs.db
