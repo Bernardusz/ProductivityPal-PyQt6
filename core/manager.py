@@ -4,4 +4,59 @@ from features.todo_feature import ToDoFeature, ToDo
 
 class Manager:
     def __init__(self):
+        self.note_feature = NotesFeature
+        self.pomodoro_feature = PomodoroFeature()
+        self.todo_feature =  ToDoFeature()
+
+    #Notes methods
+    def add_note(self, title, desc, subject, note):
         pass
+
+    def edit_note(self, title, subject):
+        pass
+
+    def remove_note(self, title, subject):
+        pass
+
+    def see_note(self, title, subject):
+        pass
+
+    def add_formula(self, title, subject, formula_name, formula):
+        pass
+
+    def add_vocab(self, title, subject, word, meaning):
+        pass
+    
+    def see_vocab_formula(self, title, subject):
+        pass
+
+    def export_txt(self, file, title, subject):
+        pass
+
+    #Tasks methods
+    def add_task(self, title, desc, priority, deadline):
+        pass
+
+    @property
+    def see_task(self):
+        pass
+    
+    def see_task_by(self, by, type):
+        pass
+
+    def mark_done(self, title):
+        pass
+
+    #json methods
+    def save_json(self, file):
+        pass
+
+    def load_json(self, file):
+        pass
+
+    #pomodoro methods
+
+    def pomodoro(self, title, subject, method):
+        pass
+
+    
