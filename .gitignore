@@ -16,3 +16,5 @@ __pycache__/
 # OS trash
 .DS_Store
 Thumbs.db
+
+test.py
