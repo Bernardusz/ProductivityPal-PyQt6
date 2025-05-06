@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime
 
+
+
 def file_exists(path):
     return os.path.isfile(path)
 
@@ -36,6 +38,9 @@ def is_deadline_close(deadline_str):
 def read_file(path):
     with open(path, 'r') as file:
         return file.read()
+
+def generate_id(word): #Will be developed alongside features, need to know how will the object be created
+    pass
 
 
 
