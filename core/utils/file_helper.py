@@ -39,8 +39,13 @@ def read_file(path):
     with open(path, 'r') as file:
         return file.read()
 
-def generate_id(word): #Will be developed alongside features, need to know how will the object be created
-    pass
+def generate_id(word, type): #Will be developed alongside features, need to know how will the object be created
+    if word not in type:
+        return word+str(0000)
+    elif word in type:
+        id = 0000 + len([key for key in type if word in key])
+        return word + str(id)
+
 
 
 
