@@ -46,10 +46,10 @@ class Manager:
             return False    
         
     def see_task_by(self, by, type):
-        self.see_task_by(by, type)
+        self.todo_feature.see_task_by(by, type)
 
     def mark_done(self, title):
-        pass
+        self.todo_feature.mark_done(title)
 
     #json methods
     def save_json(self, file):
