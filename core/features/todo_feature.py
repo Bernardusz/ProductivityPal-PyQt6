@@ -4,8 +4,9 @@ class ToDoFeature:
         self.todo = {}
     
     def add_todo(self, title, desc, priority, deadline):
-        id = generate_id(title, "ToDo", self.todo)
+        id = generate_id(title, self.todo)
         self.todo[id] = ToDo(title, desc, priority, deadline)
+        return True
     
     @property
     def see_task(self):
@@ -32,40 +33,45 @@ class ToDoFeature:
                 data = {}
                 for key in self.todo:
                     if self.todo[key].priority == "Medium":
-                        data[key] = self.todo[key]
+                        data[key] = self.todo[key] 
 
             elif type == "High":
                 data = {}
                 for key in self.todo :
                     if self.todo[key].priority == "High":
                         data[key] = self.todo[key]
-            
+            return data
             
         elif by == "Unfinished":
             data = {}
             for key in self.todo:
                 if self.todo[key].finished == False:
                     data[key] = self.todo[key]
-        
+            return data
+
         elif by == "Finished":
             data = {}
             for key in self.todo:
                 if self.todo[key].finished == True:
                     data[key] = self.todo[key]
-
+            return data
+        
         elif by == "Deadline":
             for key in self.todo:
                 if is_deadline_close(self.todo[key].deadline):
                     data[key] = self.todo[key]
+            return data
+        
         else:
-            return None
-        return data
+            return False
+        
     
     def mark_done(self, title):
         data = {}
         listofkey = [key for key in self.todo if title in key]
         for task in listofkey:
             self.todo[task].finished = True
+        return True
         
 
 class ToDo:
