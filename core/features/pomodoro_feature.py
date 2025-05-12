@@ -1,5 +1,5 @@
 from utils.file_helper import get_current_date
-import time
+
 class PomodoroFeature:
     def __init__(self):
         self.logs = {}
@@ -18,7 +18,7 @@ class PomodoroFeature:
         self.logs["50/10"][id] = PomodoroLog("50/10", subject, id)
         duration = 50*60
         session = self.pomodoro_session(note, duration)
-        return {"type" : "25/5",
+        return {"type" : "50/10",
                 "generator" : session,
                 "title" : id} 
 
