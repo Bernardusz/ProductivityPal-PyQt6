@@ -1,5 +1,5 @@
 from features.notes_feature import NotesFeature, Notes, MathNotes, ScienceNotes, LanguagesNotes
-from features.pomodoro_feature import PomodoroFeature, Pomodoro
+from features.pomodoro_feature import PomodoroFeature, PomodoroLog
 from features.todo_feature import ToDoFeature, ToDo
 
 class Manager:
@@ -97,7 +97,12 @@ class Manager:
 
     #pomodoro methods
 
-    def pomodoro(self, title, subject, method):
-        pass
+    def pomodoro(self, id, subject, method):
+        note = self.see_note(id, subject)
+        if method == "25/5":
+            return self.pomodoro_feature.Pomodoro25(id, subject, note)
+        elif method == "50/10":
+            return self.pomodoro_feature.Pomodoro50(id, subject, note)
+
 
     

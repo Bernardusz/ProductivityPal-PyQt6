@@ -72,7 +72,7 @@ class ToDoFeature:
         for task in listofkey:
             self.todo[task].finished = True
         return True
-        
+    
 
 class ToDo:
     def __init__(self, title, desc, priority, deadline):
