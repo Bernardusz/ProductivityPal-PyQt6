@@ -67,7 +67,6 @@ class ToDoFeature:
         
     
     def mark_done(self, title):
-        data = {}
         listofkey = [key for key in self.todo if title in key]
         for task in listofkey:
             self.todo[task].finished = True

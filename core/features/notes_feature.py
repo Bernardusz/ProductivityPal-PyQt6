@@ -8,16 +8,16 @@ class NotesFeature:
         id = generate_id(title, self.notes)
         if subject == "Math":
             self.notes[id] = MathNotes(title, desc, "Math", notes)
-            return True
+            return id
         elif subject == "Science":
             self.notes[id] = ScienceNotes(title, desc, "Science", notes)
-            return True
+            return id
         elif subject in self.languages:
             self.notes[id] = LanguagesNotes(title, desc, subject, notes)
-            return True
+            return id
         else:
             self.notes[id] = Notes(title, desc, subject, notes)
-            return True
+            return id
         
     def see_exist(self, id, subject): 
         if id in self.notes:

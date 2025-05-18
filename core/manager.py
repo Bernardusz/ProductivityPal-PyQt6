@@ -1,7 +1,7 @@
 from features.notes_feature import NotesFeature, Notes, MathNotes, ScienceNotes, LanguagesNotes
 from features.pomodoro_feature import PomodoroFeature, PomodoroLog
 from features.todo_feature import ToDoFeature, ToDo
-
+from utils.file_helper import save_json, load_data, get_current_date, get_current_time
 class Manager:
     def __init__(self):
         self.note_feature = NotesFeature()
@@ -12,7 +12,7 @@ class Manager:
     def add_note(self, title, desc, subject, note):
         done = self.note_feature.add_note(title, desc, subject, note)
         if done:
-            return f"Successfully added note !"
+            return f"Successfully added note ! Id : {done}"
         else:
             return f"Unsuccessful to add note !"
 
@@ -64,8 +64,8 @@ class Manager:
             return f"Unable to export"
 
     #Tasks methods
-    def add_task(self, title, desc, priority, deadline, notes):
-        self.todo_feature.add_todo(title, desc, priority, deadline, notes)
+    def add_task(self, title, desc, priority, deadline):
+        self.todo_feature.add_todo(title, desc, priority, deadline)
 
     @property
     def see_task(self):
@@ -90,10 +90,131 @@ class Manager:
 
     #json methods
     def save_json(self, file):
-        pass
+        Json = {}
+
+        Tasks = self.todo_feature.todo
+        Json["Task"] = {}
+        
+        for task in Tasks:
+            titletask = self.todo_feature.todo[task].title
+            desctask = self.todo_feature.todo[task].desc
+            prioritytask = self.todo_feature.todo[task].priority
+            deadlinetask = self.todo_feature.todo[task].deadline
+            finishedtask = self.todo_feature.todo[task].finished
+            Json["Task"][task] = {"Title" : titletask,
+                                  "Description" : desctask,
+                                  "Priority" : prioritytask,
+                                  "Deadline" : deadlinetask,
+                                  "Finished" : finishedtask}
+        
+
+        Notes = self.note_feature.notes
+        for note in Notes:
+            titlenote = self.note_feature.notes[note].title
+            descnote = self.note_feature.notes[note].desc
+            subjectnote = self.note_feature.notes[note].subject
+            notes = self.note_feature.notes[note].notes
+            if subjectnote in ["Math", "Science"]:
+                formulanote = self.note_feature.notes[note].formula
+                Json["Notes"][note] = {"Title" : titlenote,
+                                       "Description" : descnote,
+                                       "Subject" : subjectnote,
+                                       "Note" : notes,
+                                       "Formulas" : formulanote}
+            elif subjectnote in self.note_feature.languages:
+                vocabnote = self.note_feature.notes[note].vocab
+                Json["Notes"][note] = {"Title" : titlenote,
+                                       "Description" : descnote,
+                                       "Subject" : subjectnote,
+                                       "Note" : notes,
+                                       "Vocab" : vocabnote}
+            else:
+                Json["Notes"][note] = {"Title" : titlenote,
+                                       "Description" : descnote,
+                                       "Subject" : subjectnote,
+                                       "Note" : notes}
+            
+
+
+        Logs25 = self.pomodoro_feature.logs["25/5"]
+        for id in Logs25:
+            notepomodoro25 = Logs25[id].id
+            subjectpomodoro25 = Logs25[id].subject
+            datepomodoro25 = Logs25[id].date
+            typepomodoro25 = Logs25[id].type
+            Json["Pomodoro Log"]["25/5"][id] = {"Id Note" : notepomodoro25,
+                                                "Subject Note" : subjectpomodoro25,
+                                                "Date" : datepomodoro25,
+                                                "Type" : typepomodoro25}
+        Logs50 = self.pomodoro_feature.logs["50/10"]
+        for id in Logs50:
+            notepomodoro50 = Logs25[id].id
+            subjectpomodoro50 = Logs25[id].subject
+            datepomodoro50 = Logs25[id].date
+            typepomodoro50 = Logs25[id].type
+            Json["Pomodoro Log"]["50/10"][id] = {"Id Note" : notepomodoro50,
+                                                "Subject Note" : subjectpomodoro50,
+                                                "Date" : datepomodoro50,
+                                                "Type" : typepomodoro50}
+        
+
+        save_json(file, Json)
 
     def load_json(self, file):
-        pass
+        Json = load_data(file)
+        if Json:
+            
+            for task in Json["Task"]:
+                titletask = Json["Task"][task]["Title"]
+                desctask = Json["Task"][task]["Description"]
+                prioritytask = Json["Task"][task]["Priority"]
+                deadlinetask = Json["Task"][task]["Deadline"]
+                finishedtask = Json["Task"][task]["Finished"]
+                if finishedtask == True:
+                    self.add_task(titletask, desctask, prioritytask, deadlinetask)
+                    self.mark_done(titletask)
+                elif finishedtask == False:
+                    self.add_task(titletask, desctask, prioritytask, deadlinetask)
+            
+
+            Notes = self.note_feature.notes
+            for note in Notes:
+                titlenote = Json["Notes"][note]["Title"]
+                descnote = Json["Notes"][note]["Description"]
+                subjectnote = Json["Notes"][note]["Subject"]
+                notes = Json["Notes"][note]["Notes"]
+                if subjectnote in ["Math", "Science"]:
+                    formulas = Json["Notes"][note]["Formulas"]
+                    placeholder, id = self.add_note(titlenote, descnote, subjectnote, notes).split(": ")
+                    for formula in formulas:
+                        self.add_formula(id, formula, formulas[formula])
+                elif subjectnote in self.note_feature.languages:
+                    vocabs = Json["Notes"][note]["Vocabs"]
+                    placeholder, id = self.add_note(titlenote, descnote, subjectnote, notes).split(": ")
+                    for vocab in vocabs:
+                        self.add_vocab(id, vocab, vocabs[vocab])
+                else:
+                    self.add_note(titlenote, descnote, subjectnote, notes)
+                
+
+
+            Logs25 = Json["Pomodoro Log"]["25/5"]
+            for id in Logs25:
+                notepomodoro25 = Logs25[id]["Id Note"]
+                subjectpomodoro25 = Logs25[id]["Subject Note"]
+                datepomodoro25 = Logs25[id]["Date"]
+                typepomodoro25 = Logs25[id]["Type"]
+                self.pomodoro_feature.add_log(notepomodoro25, subjectpomodoro25, typepomodoro25, datepomodoro25)
+                
+            Logs50 = Json["Pomodoro Log"]["50/10"]
+            for id in Logs50:
+                notepomodoro50 = Logs50[id]["Id Note"]
+                subjectpomodoro50 = Logs50[id]["Subject Note"]
+                datepomodoro50 = Logs50[id]["Date"]
+                typepomodoro50 = Logs50[id]["Type"]
+                self.pomodoro_feature.add_log(notepomodoro50, subjectpomodoro50, typepomodoro50, datepomodoro50)
+            
+        
 
     #pomodoro methods
 
@@ -103,6 +224,11 @@ class Manager:
             return self.pomodoro_feature.Pomodoro25(id, subject, note)
         elif method == "50/10":
             return self.pomodoro_feature.Pomodoro50(id, subject, note)
-
-
+    
+    @property
+    def get_date(self):
+        return get_current_date()
+    
+    def get_time(self):
+        return get_current_time()
     

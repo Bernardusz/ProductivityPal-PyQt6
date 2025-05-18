@@ -28,6 +28,9 @@ def load_data(file_path):
 def get_current_date():
     return datetime.now().strftime("%d:%m:%y")
 
+def get_current_time():
+    return datetime.now().strftime("%H:%M:%S")
+
 def is_deadline_close(deadline_str):
     deadline = datetime.strptime(deadline_str, "%d:%m:%y")
     today = datetime.now()
