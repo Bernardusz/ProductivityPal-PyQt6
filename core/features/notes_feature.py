@@ -1,4 +1,4 @@
-from utils.file_helper import generate_id, file_exists
+from core.utils.file_helper import generate_id, file_exists
 class NotesFeature:
     def __init__(self):
         self.notes = {}
@@ -111,8 +111,38 @@ class NotesFeature:
                 return False
         else:
             return False
-        
-
+    @property   
+    def return_notes(self):
+        if self.notes:
+            placeholder = {}
+            for note in self.notes:
+                title = self.notes[note].title
+                desc = self.notes[note].desc
+                subject = self.notes[note].subject
+                notes = self.notes[note].notes
+                if subject in ["Math", "Science"]:
+                    formula = self.notes[note].formula
+                    placeholder[note] = {"Title" : title,
+                                         "Desc" : desc,
+                                         "Subject": subject,
+                                         "Notes" : notes,
+                                         "Formula" : formula}
+                elif subject in self.languages:
+                    vocab = self.notes[note].vocab
+                    placeholder[note] = {"Title" : title,
+                                     "Desc" : desc,
+                                     "Subject": subject,
+                                     "Notes" : notes,
+                                     "Vocab" : vocab}
+                else:
+                    placeholder[note] = {"Title" : title,
+                                     "Desc" : desc,
+                                     "Subject": subject,
+                                     "Notes" : notes}
+                
+            return placeholder
+        else:
+            return False           
 
 class Notes:
     def __init__(self, title, desc, subject, notes):

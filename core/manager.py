@@ -1,7 +1,7 @@
-from features.notes_feature import NotesFeature, Notes, MathNotes, ScienceNotes, LanguagesNotes
-from features.pomodoro_feature import PomodoroFeature, PomodoroLog
-from features.todo_feature import ToDoFeature, ToDo
-from utils.file_helper import save_json, load_data, get_current_date, get_current_time
+from core.features.notes_feature import NotesFeature
+from core.features.pomodoro_feature import PomodoroFeature
+from core.features.todo_feature import ToDoFeature
+from core.utils.file_helper import save_json, load_data, get_current_date, get_current_time
 class Manager:
     def __init__(self):
         self.note_feature = NotesFeature()
@@ -28,6 +28,7 @@ class Manager:
             return f"Successfully removed note !"
         else:
             return f"Unsuccessful to remove note !"
+        
     def see_note(self, id, subject):
         exist = self.note_feature.see_exist(id, subject)
         if exist:
@@ -62,7 +63,14 @@ class Manager:
             return f"Successfully exported !"
         else:
             return f"Unable to export"
-
+        
+    @property
+    def return_notes(self):
+        notes = self.note_feature.return_notes
+        if notes:
+            return notes
+        else:
+            return f"No notes available at the moment"
     #Tasks methods
     def add_task(self, title, desc, priority, deadline):
         self.todo_feature.add_todo(title, desc, priority, deadline)
@@ -73,7 +81,7 @@ class Manager:
         if task:
             return task
         else:
-            return f"Unable to get the task !" 
+            return f"No tasks found !" 
         
     def see_task_by(self, by, type):
         task = self.todo_feature.see_task_by(by, type)
