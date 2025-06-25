@@ -1,15 +1,12 @@
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, 
-                             QWidget, QVBoxLayout, QGridLayout, QPushButton,
-                             QStackedWidget)
-from PyQt6.QtGui import QIcon, QFont, QPixmap
-from PyQt6.QtCore import (QSize, Qt, pyqtSignal, QDateTime,
-                          QObject, QTimer)
+from PyQt6.QtWidgets import (QLabel, QWidget, QVBoxLayout, 
+                             QGridLayout, QPushButton,)
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QDateTime, QTimer, pyqtSignal
 import sys
 from core.manager import Manager
-
-
-
+from core.ui.dialogs import TimeLabel
 class HomePage(QWidget):
+    switchPageSignal = pyqtSignal(str)
     def __init__(self):
         super().__init__()
         self.manager = Manager()
@@ -27,7 +24,7 @@ class HomePage(QWidget):
         self.notesButton = QPushButton("Notes 📝", self)
         self.notesButton.setStyleSheet("background-color: white;")
         self.notesButton.setMinimumSize(300, 100)
-        # self.notesButton.clicked.connect()
+        self.notesButton.clicked.connect(lambda: self.switchPageSignal.emit("Notes"))
         self.taskButton = QPushButton("To Do 📃", self)
         self.taskButton.setStyleSheet("background-color: white;")
         self.taskButton.setMinimumSize(300, 100)
@@ -78,17 +75,7 @@ class HomePage(QWidget):
 
     def time_bar(self):
         #time bar
-        self.timeLabel = QLabel(self)
-        self.timeLabel.setStyleSheet("background-color: #ffffff;"
-                                     "font-weight: bold;")
-        self.timeLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.timeLabel.setMaximumHeight(30)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_clock)
-        self.timer.start(1000) 
-
-        self.update_clock()
+        self.timeLabel = TimeLabel()
 
     def layouting(self):
         layout = QGridLayout()
@@ -100,7 +87,3 @@ class HomePage(QWidget):
         layout.addWidget(self.timeLabel, 5, 0, 1, 3)
         layout.addWidget(self.notesWidget, 1, 2, 1, 1)
         self.setLayout(layout)
-
-    def update_clock(self):
-        current_time_date = QDateTime.currentDateTime()
-        self.timeLabel.setText(f"Time to study 📚                                          {current_time_date.toString('dd/MM/yy - HH:mm:ss')}                                          For a Brighter Future  ! 🌟")

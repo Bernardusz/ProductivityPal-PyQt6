@@ -151,6 +151,8 @@ class Notes:
         self.subject = subject
         self.notes = notes
 
+    def get_extras(self):
+        return None
 class MathNotes(Notes):
     def __init__(self, title, desc, subject, notes):
         super().__init__(title, desc, subject, notes)
@@ -159,6 +161,8 @@ class MathNotes(Notes):
     def add_formula(self, name, formula):
         self.formula[name] = formula
     
+    def get_extras(self):
+        return self.formula
 class ScienceNotes(Notes):
     def __init__(self, title, desc, subject, notes):
         super().__init__(title, desc, subject, notes)
@@ -167,6 +171,8 @@ class ScienceNotes(Notes):
     def add_formula(self, name, formula):
         self.formula[name] = formula
 
+    def get_extras(self):
+        return self.formula
 class LanguagesNotes(Notes):
     def __init__(self, title, desc, subject, notes):
         super().__init__(title, desc, subject, notes)
@@ -174,3 +180,6 @@ class LanguagesNotes(Notes):
 
     def add_vocab(self, word, meaning):
         self.vocab[word] = meaning
+    
+    def get_extras(self):
+        return self.vocab

@@ -32,7 +32,11 @@ class Manager:
     def see_note(self, id, subject):
         exist = self.note_feature.see_exist(id, subject)
         if exist:
-            return exist.notes
+            return {"Title" : exist.title,
+                    "Desc" : exist.desc,
+                    "Subject" : exist.subject,
+                    "Notes" : exist.notes,
+                    "Extras" : exist.get_extras}
         else:
             return f"Unable to show note !"
         
