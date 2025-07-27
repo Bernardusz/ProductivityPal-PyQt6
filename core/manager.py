@@ -244,3 +244,7 @@ class Manager:
     def get_time(self):
         return get_current_time()
     
+    @property
+    def return_languages(self):
+        return self.note_feature.languages
+    

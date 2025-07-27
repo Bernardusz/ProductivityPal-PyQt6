@@ -15,7 +15,6 @@ class HomePage(QWidget):
     def initUI(self):
         self.functions_button()
         self.task_bar()
-        self.time_bar()
         self.notes_bar()
         self.layouting()
    
@@ -73,9 +72,6 @@ class HomePage(QWidget):
             notesLayout.addWidget(notesLabel)
         self.notesWidget.setLayout(notesLayout)
 
-    def time_bar(self):
-        #time bar
-        self.timeLabel = TimeLabel()
 
     def layouting(self):
         layout = QGridLayout()
@@ -84,6 +80,5 @@ class HomePage(QWidget):
         layout.addWidget(self.taskButton, 4, 1)
         layout.addWidget(self.pomodoroButton, 4, 2)
         layout.addWidget(self.taskWidget, 1, 0, 2, 2)
-        layout.addWidget(self.timeLabel, 5, 0, 1, 3)
         layout.addWidget(self.notesWidget, 1, 2, 1, 1)
         self.setLayout(layout)
