@@ -9,6 +9,7 @@ from PyQt6.QtCore import (QSize, Qt, pyqtSignal, QDateTime,
 
 from core.manager import Manager
 from core.ui.dialogs import TimeLabel
+from core.utils.file_helper import clear_layout
 # QWidget -> QStackedWidget -> QWidgets
 # class_layout -> 
 
@@ -17,7 +18,8 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
         super().__init__()
         self.manager = Manager()
         self.InitUi()
-    
+        self.HandleEmits()
+
     def InitUi(self):
         self.InitMainPage()
         self.InitAddPage()
@@ -27,13 +29,15 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
         self.NoteButtons()
         self.Layouting()
     def InitMainPage(self):
-        self.MainPage()
         self.NoteLists()
         self.NotePages()
-        self.MainPageLayout()
+        self.MainPage()
     def InitAddPage(self):
-        self.AddPage()
-        self.AddPageLayout()
+        self.add_page = AddPage(self.manager)
+        self.add_page.AddPageLayout()
+        self.add_page.setLayout(self.add_page.add_page_layout)
+    def HandleEmits(self):
+        self.RecieveEmits()
 
     def ContainerPage(self):
         self.central_widget = QStackedWidget(self)
@@ -70,49 +74,60 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
         
         layout.addLayout(self.buttons_layout)
         self.setLayout(layout)
+        
+    
 
+    def NoteLists(self):
+        # Scroll area & inner widget
+        self.note_lists = NoteLists()
+
+    def refreshNotes(self):
+        self.note_lists.RefreshNotes()
+              
+    def NotePages(self):
+        self.notes_page = NotesShowing()
+
+    def SwitchPage(self, page):
+        self.central_widget.setCurrentWidget(page)
 
     def MainPage(self):
         self.main_page = QWidget(self)
-    def NoteLists(self):
-        # Scroll area & inner widget
-        self.scroll_area = QScrollArea(self.main_page)
-        self.scroll_area.setWidgetResizable(True)
+        self.main_page_layout = QHBoxLayout(self.main_page)
+        self.main_page_layout.addWidget(self.note_lists)
+        self.main_page_layout.addWidget(self.notes_page)
+        self.main_page_layout.setStretch(0, 1)
+        self.main_page_layout.setStretch(1, 1)
 
-        self.widget_list = QWidget(self.scroll_area)
+    def RecieveEmits(self):
+        self.note_lists.button_clicked.connect(self.notes_page.SwitchContent)
+        self.add_page.back_home.connect(lambda: self.SwitchPage(self.main_page))
+        self.note_lists.request_notes.connect(lambda: self.note_lists.recieveNotes(self.manager.return_notes))
+        self.add_page.refresh_page.connect(self.note_lists.RefreshNotes)
+class NoteLists(QScrollArea):
+    button_clicked = pyqtSignal(QPushButton)
+    request_notes = pyqtSignal()
+    def __init__(self):
+        super().__init__()
+        self.setWidgetResizable(True)
+
+        self.widget_list = QWidget(self)
         self.widget_list_layout = QVBoxLayout(self.widget_list)
-        
-        
-        self.notes = self.manager.return_notes
+        self.notes = None
+        self.RefreshNotes()
+    
+    def recieveNotes(self, notes):
+        self.notes = notes
+
+    def RefreshNotes(self):
+        lambda: self.request_notes.emit()
         self.note_buttons = []
-
-        if isinstance(self.notes, dict):
-            for note in self.notes:
-                note_button = QPushButton(
-                    f"{self.notes[note]['Title']}\n{note}\n{self.notes[note]['Subject']}", self.widget_list)
-                note_button.clicked.connect(lambda _, button=note_button: self.switch_content(button))
-                note_button.setCheckable(True)
-                self.widget_list_layout.addWidget(note_button)  # ✅ not self.notes_button
-                self.note_buttons.append(note_button)
-        else:
-            self.notes_label = QLabel(self.notes)
-            self.notes_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.notes_label.setStyleSheet("background-color: white; font-weight: bold;")
-            self.notes_label.setFont(QFont("Arial", 10))
-            self.widget_list_layout.addWidget(self.notes_label)
-
-        self.widget_list.setLayout(self.widget_list_layout)
-        self.scroll_area.setWidget(self.widget_list)
-        
-        
-    def refreshNotes(self):
-        self.notes = self.manager.return_notes
+        clear_layout(self.widget_list_layout)
 
         if isinstance(self.notes, dict):
             for note in self.notes:
                 print(note)
                 note_button = QPushButton(f"{self.notes[note]['Title']}\n{note}\n{self.notes[note]['Subject']}", self.widget_list)
-                note_button.clicked.connect(lambda _, button=note_button: self.SwitchContent(button))
+                note_button.clicked.connect(lambda: self.button_clicked.emit(note_button))
                 note_button.setCheckable(True)
                 self.widget_list_layout.addWidget(note_button)
                 self.note_buttons.append(note_button)
@@ -122,9 +137,16 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
             self.notes_label.setStyleSheet("background-color: white;"
                                      "font-weight: bold;")
             self.notes_label.setFont(QFont("Arial, 10"))
-              
-    def NotePages(self):
-        self.notes_showing = QWidget(self.main_page)
+            self.widget_list_layout.addWidget(self.notes_label)
+
+        self.widget_list.setLayout(self.widget_list_layout)
+        self.setWidget(self.widget_list)
+        self.setWidget(self.widget_list)
+        
+class NotesShowing(QWidget):
+    def __init__(self):
+        super().__init__()
+        #self.notes_showing = QWidget(self)
 
         self.title_label = QLabel("Title : ", self)
         self.subject_label = QLabel("Subject : ", self)
@@ -134,24 +156,18 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
         self.setStyleSheet("QLabel{"
                            "background-color: white;"
                            "}") 
-    def MainPageLayout(self):
+        self.NotesShowingLayout()
         
-        self.main_page_layout = QHBoxLayout(self.main_page)
-        self.main_page_layout.addWidget(self.scroll_area)
-        self.main_page_layout.addWidget(self.notes_showing)
-        self.main_page_layout.setStretch(0, 1)
-        self.main_page_layout.setStretch(1, 1)
-        #-----------------------------------------------
+    def NotesShowingLayout(self):
         self.notes_showing_layout = QVBoxLayout(self)
         self.notes_showing_layout.addWidget(self.title_label)
         self.notes_showing_layout.addWidget(self.subject_label)
         self.notes_showing_layout.addWidget(self.desc_label)
         self.notes_showing_layout.addWidget(self.notes_text)
-        self.notes_showing.setLayout(self.notes_showing_layout)
+        self.setLayout(self.notes_showing_layout)
 
-        self.notes_showing.setStyleSheet("background-color: white;")
-        #------------------------------------------------
-        self.scroll_area.setWidget(self.widget_list)
+        self.setStyleSheet("background-color: white;")
+
     def SwitchContent(self, button):
         notesID = button.text().split("\n")
         note = self.manager.see_note(notesID[1], notesID[2])
@@ -160,11 +176,16 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
             self.subject_label.setText(f"Subject : {note['Subject']}")
             self.desc_label.setText(f"Description : {note['Desc']}")
             self.notes_text.setText(f"Notes : {note['Notes']}")
+    
 
-    def AddPage(self):
-        self.add_page = QWidget(self)
-        self.add_page.setStyleSheet("background-color: white;")
-        self.add_page_layout = QVBoxLayout(self.add_page)
+class AddPage(QWidget):
+    back_home = pyqtSignal()
+    refresh_page = pyqtSignal()
+    def __init__(self, manager):
+        super().__init__()
+        self.manager = manager
+        self.setStyleSheet("background-color: white;")
+        self.add_page_layout = QVBoxLayout(self)
 
         self.title_line_edit = QLineEdit(self)
         self.title_line_edit.setPlaceholderText("Enter the title")
@@ -197,11 +218,12 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
 
         self.exit_button = QPushButton("<-", self)
         self.submit_button = QPushButton("Submit",self)
-        self.exit_button.clicked.connect(lambda _, page=self.main_page: self.SwitchPage(page))
-        self.exit_button.clicked.connect(self.refreshNotes)
+        self.exit_button.clicked.connect(lambda: self.back_home.emit())
+        self.exit_button.clicked.connect(lambda: self.refresh_page.emit())
         self.submit_button.clicked.connect(self.createNewNote)
         self.submit_button.clicked.connect(lambda _, page=self.add_page_layout: self.resetInputs(page))
         self.result_label = QLabel(self)
+        
     def AddPageLayout(self):
         self.add_page_layout.addWidget(self.exit_button, alignment=Qt.AlignmentFlag.AlignLeft)
         self.add_page_layout.addWidget(self.title_line_edit)
@@ -214,6 +236,7 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
         self.add_page_layout.addWidget(self.note_text_edit)
         self.add_page_layout.addWidget(self.submit_button, alignment=Qt.AlignmentFlag.AlignRight)
         self.add_page_layout.addWidget(self.result_label)
+        
     def isFormValid(self):
         title_value = self.title_line_edit.text()
         desc_value = self.desc_text_edit.toPlainText()
@@ -221,15 +244,14 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
 
         checked_button = self.button_group.checkedButton()
         
-        
         if not checked_button:
             return False
         
         if checked_button.text() == "Other":
             other_value = self.other_widget_lineEdit.text()
             return all([title_value, desc_value, note_value, other_value])
-
         return all([title_value, desc_value, note_value])
+    
     def createNewNote(self):
         if self.isFormValid():
             if self.button_group.checkedButton().text() == "Other":
@@ -239,6 +261,7 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
             self.result_label.setText("Succsesfully created notes !")
         else:
             self.result_label.setText("Please make sure to fill everything !")
+    
     def resetInputs(self, layout):
         for i in range(layout.count()):
             widget = layout.itemAt(i).widget()
@@ -251,9 +274,3 @@ class NotesPage(QWidget): # QWidget -> QStackedWidget -> QWidgets
             elif widget == self.other_widget:
                 self.other_widget_lineEdit.clear()
                 self.other_widget_radio.setChecked(False)
-
-    def RemovePage(self):
-        self.remove_widget = QWidget(self)
-    
-    def SwitchPage(self, page):
-        self.central_widget.setCurrentWidget(page)

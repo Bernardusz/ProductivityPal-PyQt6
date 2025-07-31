@@ -46,6 +46,18 @@ def generate_id(word, obj_dict): #Will be developed alongside features, need to 
     count = len([key for key in obj_dict if key.startswith(word)])
     return f"{word}{count:04d}"
 
+def clear_layout(layout):
+    while layout.count():
+        item = layout.takeAt(0)
+
+        widget = item.widget()
+        if widget is not None:
+            widget.setParent(None)
+        else:
+            sub_layout = item.layout()
+            if sub_layout is not None:
+                clear_layout(sub_layout)
+
 
 
 
